@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify
+from redis import Redis, RedisError
 from math import sqrt
 import requests
 import hashlib
@@ -20,9 +21,9 @@ else:
     SLACK_URL = "https://hooks.slack.com/services/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"
 
 
-##
+#
 # Helper functions
-##
+#
 def fact(n):
     if n > 0:
         return n * fact(n-1)
@@ -45,11 +46,15 @@ def is_prime(n):
     return True
 
 
-##
+#
 # Application
-##
+#
 app = Flask(__name__)
+redis = Redis(host="redis", socket_connect_timeout=2, socket_timeout=2)
 
+#
+# API routes
+#
 @app.route('/')
 def hello():
     return jsonify(
@@ -84,6 +89,81 @@ def prime_check(input_int):
         output=is_prime(input_int)
     )
 
+@app.route('/kv-record/<string:key>', methods=['POST'])
+def kv_create(key):
+    input = key
+    output = False
+    err_msg = None
+    try:
+        # first ensure this key does NOT exist (POST == create only)
+        value = redis.get(key)
+        if not value == None: 
+            err_msg = "Cannot create new record: key already exists."
+        else:
+            # ok, this is a new key. let's create it
+            payload = request.get_json()
+            create_red = redis.set(key, payload['value'])
+            if create_red == False:
+                err_msg = "ERROR: There was a problem creating the value in Redis."
+            else:
+                output = True
+                input = payload
+    except RedisError:
+        err_msg = "Cannot connect to redis."
+
+    return jsonify(
+        input=input,
+        output=output,
+        error=err_msg
+    )
+
+@app.route('/kv-record/<string:key>', methods=['PUT'])
+def kv_update(key):
+    input = key
+    output = False
+    err_msg = None
+    try:
+        # first check to see if this key even exists (PUT == update only)
+        value = redis.get(key)
+        if value == None: 
+            err_msg = "Cannot update: key does not exist."
+        else:
+            # ok, key exists. now update it
+            payload = request.get_json()
+            update_red = redis.set(key, payload['value'])
+            if update_red == False:
+                err_msg = "ERROR: There was a problem updating the value in Redis."
+            else:
+                output = True
+                input = payload
+    except RedisError:
+        err_msg = "Cannot connect to redis."
+
+    return jsonify(
+        input=input,
+        output=output,
+        error=err_msg
+    )
+
+@app.route('/kv-retrieve/<string:key>')
+def kv_retrieve(key):
+    output = False
+    err_msg = None
+    try:
+        value = redis.get(key)
+        if value == None:
+            err_msg = "Key does not exist."
+        else:
+            output = value
+    except RedisError:
+        err_msg = "Cannot connect to redis."
+
+    return jsonify(
+        input=key,
+        output=output,
+        error=err_msg
+    )
+
 @app.route('/slack-alert/<string:msg>')
 def post_to_slack(msg):
     data = { 'text': msg }
@@ -101,6 +181,8 @@ def post_to_slack(msg):
         output=result
     )
 
-
+#
+# Run the server if called directly
+#
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)

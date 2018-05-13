@@ -61,6 +61,13 @@ def hello():
         output="Hello World!"
     )
 
+@app.route('/echo/<string:input_str>')
+def echo(input_str):
+    return jsonify(
+        input=input_str,
+        output=' '.join([input_str]*3)
+    )
+
 @app.route('/md5/<string:input_str>')
 def md5_response(input_str):
     return jsonify(

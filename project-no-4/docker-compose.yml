@@ -1,26 +1,13 @@
 version: "3.4"
 services:
   web:
-    image: tcmg476-project-4
-    deploy:
-      replicas: 3
-      resources:
-        limits:
-          cpus: "0.1"
-          memory: 50M
-      restart_policy:
-        condition: on-failure
+    image: andem/tcmg476-project-5
     ports:
       - "5000:5000"
     networks:
       - webnet
   redis:
     image: redis
-    ports:
-      - "6379:6379"
-    deploy:
-      placement:
-        constraints: [node.role == manager]
     networks:
       - webnet
 networks:

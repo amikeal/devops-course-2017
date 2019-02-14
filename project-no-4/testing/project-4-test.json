@@ -1,0 +1,225 @@
+{
+    "config" : {
+        "base_url": "http://localhost:5000"
+    },
+
+    "tests": [
+
+    {
+        "name": "MD5 'test'",
+        "GET": "/md5/test",
+        "assert": {
+            "status": 200,
+            "json": {
+                "input": "test",
+                "output": "098f6bcd4621d373cade4e832627b4f6"
+            }
+        }
+    },
+
+    {
+        "name": "MD5 'hello world'",
+        "GET": "/md5/hello%20world",
+        "assert": {
+            "status": 200,
+            "json": {
+                "input": "hello world",
+                "output": "5eb63bbbe01eeed093cb22bb8f5acdc3"
+            }
+        }
+    },
+
+    {
+        "name": "MD5 empty string",
+        "GET": "/md5",
+        "assert": {
+            "status": [ 404, 200 ]
+        }
+    },
+
+    {
+        "name": "Factorial 0",
+        "GET": "/factorial/0",
+        "assert": {
+            "status": 200,
+            "json": {
+                "input": 0,
+                "output": 1
+            }
+        }
+    },
+
+    {
+        "name": "Factorial 4",
+        "GET": "/factorial/4",
+        "assert": {
+            "status": 200,
+            "json": {
+                "input": 4,
+                "output": 24
+            }
+        }
+    },
+
+    {
+        "name": "Factorial 5",
+        "GET": "/factorial/5",
+        "assert": {
+            "status": 200,
+            "json": {
+                "input": 5,
+                "output": 120
+            }
+        }
+    },
+
+    {
+        "name": "Factorial empty string",
+        "GET": "/factorial",
+        "assert": {
+            "status": [404, 200]
+        }
+    },
+
+    {
+        "name": "Factorial 'test'",
+        "GET": "/factorial/test",
+        "assert": {
+            "status": 404
+        }
+    },
+
+    {
+        "name": "Fibonacci 1",
+        "GET": "/fibonacci/1",
+        "assert": {
+            "status": 200,
+            "json": {
+                "input": 1,
+                "output": [0, 1, 1]
+            }
+        }
+    },
+
+    {
+        "name": "Fibonacci 8",
+        "GET": "/fibonacci/8",
+        "assert": {
+            "status": 200,
+            "json": {
+                "input": 8,
+                "output": [0, 1, 1, 2, 3, 5, 8]
+            }
+        }
+    },
+
+    {
+        "name": "Fibonacci 35",
+        "GET": "/fibonacci/35",
+        "assert": {
+            "status": 200,
+            "json": {
+                "input": 35,
+                "output": [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
+            }
+        }
+    },
+
+    {
+        "name": "Fibonacci 'test'",
+        "GET": "/fibonacci/test",
+        "assert": {
+            "status": 404
+        }
+    },
+
+    {
+        "name": "Primality 1",
+        "GET": "/is-prime/1",
+        "assert": {
+            "status": 200,
+            "json": {
+                "input": 1,
+                "output": false
+            }
+        }
+    },
+
+    {
+        "name": "Primality 2",
+        "GET": "/is-prime/2",
+        "assert": {
+            "status": 200,
+            "json": {
+                "input": 2,
+                "output": true
+            }
+        }
+    },
+
+    {
+        "name": "Primality 5",
+        "GET": "/is-prime/5",
+        "assert": {
+            "status": 200,
+            "json": {
+                "input": 5,
+                "output": true
+            }
+        }
+    },
+
+    {
+        "name": "Primality 6",
+        "GET": "/is-prime/6",
+        "assert": {
+            "status": 200,
+            "json": {
+                "input": 6,
+                "output": false
+            }
+        }
+    },
+
+    {
+        "name": "Primality 26227",
+        "GET": "/is-prime/26227",
+        "assert": {
+            "status": 200,
+            "json": {
+                "input": 26227,
+                "output": true
+            }
+        }
+    },
+
+    {
+        "name": "Slack Alert 'test'",
+        "GET": "/slack-alert/test",
+        "assert": {
+            "status": 200,
+            "json": {
+                "input": "test",
+                "output": true,
+                "message": "{{string}}"
+            }
+        }
+    },
+
+    {
+        "name": "Slack Alert with newline",
+        "GET": "/slack-alert/This%20is%20a%20longer%20string.%0D%0AIt%20even%20includes%20a%20newline...",
+        "assert": {
+            "status": 200,
+            "json": {
+                "input": "This is a longer test.\\nIt even includes a newline...",
+                "output": true,
+                "message": "{{string}}"
+            }
+        }
+    }
+
+    ]
+
+}
+
